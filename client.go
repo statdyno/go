@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 const DefaultServerEndpoint = "https://api.statdyno.com"
@@ -25,6 +26,7 @@ func (se ServerError) Error() string {
 
 type Client struct {
 	ServerEndpoint   string
+	Timeout          time.Duration
 	PostErrorHandler func(error)
 
 	authToken  string
@@ -49,7 +51,8 @@ func (c *Client) post(stats MultiStats) {
 	}
 	req.Header.Set("Authorization", "Bearer "+c.authToken)
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(req)
+	client := &http.Client{Timeout: c.Timeout}
+	resp, err := client.Do(req)
 	if err != nil {
 		return
 	}
@@ -106,6 +109,7 @@ var _ Handler = &Client{}
 func New(authToken string) *Client {
 	return &Client{
 		ServerEndpoint: DefaultServerEndpoint,
+		Timeout:        10 * time.Second,
 		authToken:      authToken,
 	}
 }
