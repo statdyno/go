@@ -49,13 +49,9 @@ func (w Wrapper) Value(name string, value float64) error {
 	return w.HandleValue(ValueStat{Name: name, Value: value})
 }
 
-var (
-	defaultHandler Handler
-	defaultWrapper Wrapper
-)
+var defaultWrapper Wrapper
 
-func SetDefaultHandler(h Handler) {
-	defaultHandler = h
+func SetDefault(h Handler) {
 	defaultWrapper = Wrapper{h}
 }
 
@@ -134,5 +130,5 @@ func NewMultiHandler(handlers ...Handler) *MultiHandler {
 }
 
 func init() {
-	SetDefaultHandler(NullHandler{})
+	SetDefault(NullHandler{})
 }

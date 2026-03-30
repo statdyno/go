@@ -100,7 +100,7 @@ func (c *BatchClient) postStats() {
 	if n := len(c.valueCache); n > 0 {
 		stats.Values = make([]ValueStat, 0, n)
 		for _, value := range c.valueCache {
-			stats.Values = append(stats.Values, *&value.ValueStat)
+			stats.Values = append(stats.Values, value.ValueStat)
 		}
 		clear(c.valueCache)
 	}

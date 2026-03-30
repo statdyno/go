@@ -22,7 +22,7 @@ func (ms MultiStats) sort() {
 }
 
 func TestNullHandler(t *testing.T) {
-	SetDefaultHandler(NullHandler{})
+	SetDefault(NullHandler{})
 	Count("foo", 123)
 	Value("foo", 0.123)
 }
@@ -108,7 +108,7 @@ func TestClient(t *testing.T) {
 		th.requests = nil
 		client := New("secret")
 		client.ServerEndpoint = ts.URL
-		SetDefaultHandler(client)
+		SetDefault(client)
 		t.Run(test.name, func(t *testing.T) {
 			if test.log != nil {
 				test.log()
@@ -133,7 +133,7 @@ func TestClientErrorHandler(t *testing.T) {
 	client.PostErrorHandler = func(err error) {
 		postError = err
 	}
-	SetDefaultHandler(client)
+	SetDefault(client)
 	Count("count", 1)
 	if err := client.Shutdown(context.Background()); err != nil {
 		t.Fatal(err)
@@ -150,7 +150,7 @@ func TestClientShutdown(t *testing.T) {
 	defer ts.Close()
 	client := New("secret")
 	client.ServerEndpoint = ts.URL
-	SetDefaultHandler(client)
+	SetDefault(client)
 	Count("count", 1)
 	if err := client.Shutdown(context.Background()); err != nil {
 		t.Fatal(err)

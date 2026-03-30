@@ -28,7 +28,7 @@ func (dh *dummyHandler) Reset() {
 func TestMultiHandler(t *testing.T) {
 	th := &dummyHandler{}
 	handler := NewMultiHandler(th, th)
-	SetDefaultHandler(handler)
+	SetDefault(handler)
 	for _, test := range []struct {
 		name          string
 		log           func()

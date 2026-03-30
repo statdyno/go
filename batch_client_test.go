@@ -161,7 +161,7 @@ func TestBatchClient(t *testing.T) {
 		interval := time.Duration(100 * time.Millisecond)
 		client := NewBatchClient("secret", interval)
 		client.ServerEndpoint = ts.URL
-		SetDefaultHandler(client)
+		SetDefault(client)
 		t.Run(test.name, func(t *testing.T) {
 			if test.log != nil {
 				test.log()
