@@ -21,7 +21,7 @@ type ServerError struct {
 }
 
 func (se ServerError) Error() string {
-	return fmt.Sprintf("Expected %d response from server, got %d instead", http.StatusAccepted, se.StatusCode)
+	return fmt.Sprintf("server error: expected status %d but got %d instead", http.StatusAccepted, se.StatusCode)
 }
 
 type Client struct {
