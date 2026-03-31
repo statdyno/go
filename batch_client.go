@@ -46,7 +46,6 @@ func cacheKey(name string, tags Tags) string {
 type BatchClient struct {
 	*Client
 
-	interval   time.Duration
 	stop       chan any
 	countCache map[string]*CountStat
 	valueCache map[string]*runningAverage
@@ -117,7 +116,6 @@ func NewBatchClient(authToken string, interval time.Duration) *BatchClient {
 	client := New(authToken)
 	bc := &BatchClient{
 		Client:     client,
-		interval:   interval,
 		stop:       make(chan any),
 		countCache: make(map[string]*CountStat),
 		valueCache: make(map[string]*runningAverage),
