@@ -21,8 +21,8 @@ type MultiStats struct {
 }
 
 type Handler interface {
-	HandleCount(stat CountStat) error
-	HandleValue(stat ValueStat) error
+	HandleCount(name string, count int) error
+	HandleValue(name string, value float64) error
 }
 
 type Wrapper struct {
@@ -30,11 +30,11 @@ type Wrapper struct {
 }
 
 func (w Wrapper) Count(name string, count int) error {
-	return w.HandleCount(CountStat{Name: name, Count: count})
+	return w.HandleCount(name, count)
 }
 
 func (w Wrapper) Value(name string, value float64) error {
-	return w.HandleValue(ValueStat{Name: name, Value: value})
+	return w.HandleValue(name, value)
 }
 
 var defaultWrapper Wrapper
@@ -53,11 +53,11 @@ func Value(name string, value float64) error {
 
 type NullHandler struct{}
 
-func (h NullHandler) HandleCount(stat CountStat) error {
+func (h NullHandler) HandleCount(name string, count int) error {
 	return nil
 }
 
-func (h NullHandler) HandleValue(stat ValueStat) error {
+func (h NullHandler) HandleValue(name string, value float64) error {
 	return nil
 }
 
@@ -65,13 +65,13 @@ var _ Handler = NullHandler{}
 
 type LogHandler struct{}
 
-func (h LogHandler) HandleCount(stat CountStat) error {
-	log.Printf("counter stat: name: %s, count: %d", stat.Name, stat.Count)
+func (h LogHandler) HandleCount(name string, count int) error {
+	log.Printf("counter stat: name: %s, count: %d", name, count)
 	return nil
 }
 
-func (h LogHandler) HandleValue(stat ValueStat) error {
-	log.Printf("value stat: name: %s, value: %f", stat.Name, stat.Value)
+func (h LogHandler) HandleValue(name string, value float64) error {
+	log.Printf("value stat: name: %s, value: %f", name, value)
 	return nil
 }
 
@@ -81,20 +81,20 @@ type MultiHandler struct {
 	multi []Handler
 }
 
-func (h *MultiHandler) HandleCount(stat CountStat) error {
+func (h *MultiHandler) HandleCount(name string, count int) error {
 	var errs []error
 	for i := range h.multi {
-		if err := h.multi[i].HandleCount(stat); err != nil {
+		if err := h.multi[i].HandleCount(name, count); err != nil {
 			errs = append(errs, err)
 		}
 	}
 	return errors.Join(errs...)
 }
 
-func (h *MultiHandler) HandleValue(stat ValueStat) error {
+func (h *MultiHandler) HandleValue(name string, value float64) error {
 	var errs []error
 	for i := range h.multi {
-		if err := h.multi[i].HandleValue(stat); err != nil {
+		if err := h.multi[i].HandleValue(name, value); err != nil {
 			errs = append(errs, err)
 		}
 	}

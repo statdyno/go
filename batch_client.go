@@ -25,32 +25,30 @@ type BatchClient struct {
 	cacheLck   sync.Mutex
 }
 
-func (c *BatchClient) HandleCount(stat CountStat) error {
+func (c *BatchClient) HandleCount(name string, count int) error {
 	if c.shuttingDown() {
 		return ErrClientClosed
 	}
 	c.cacheLck.Lock()
 	defer c.cacheLck.Unlock()
-	key := stat.Name
-	if count, ok := c.countCache[key]; ok {
-		count.Count += stat.Count
+	if v, ok := c.countCache[name]; ok {
+		v.Count += count
 	} else {
-		c.countCache[key] = &stat
+		c.countCache[name] = &CountStat{Name: name, Count: count}
 	}
 	return nil
 }
 
-func (c *BatchClient) HandleValue(stat ValueStat) error {
+func (c *BatchClient) HandleValue(name string, value float64) error {
 	if c.shuttingDown() {
 		return ErrClientClosed
 	}
 	c.cacheLck.Lock()
 	defer c.cacheLck.Unlock()
-	key := stat.Name
-	if value, ok := c.valueCache[key]; ok {
-		value.Add(stat.Value)
+	if v, ok := c.valueCache[name]; ok {
+		v.Add(value)
 	} else {
-		c.valueCache[key] = &runningAverage{stat, 1}
+		c.valueCache[name] = &runningAverage{ValueStat{name, value}, 1}
 	}
 	return nil
 }

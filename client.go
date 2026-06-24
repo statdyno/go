@@ -62,22 +62,22 @@ func (c *Client) post(stats MultiStats) {
 	}
 }
 
-func (c *Client) HandleCount(stat CountStat) error {
+func (c *Client) HandleCount(name string, count int) error {
 	if c.shuttingDown() {
 		return ErrClientClosed
 	}
 	c.wg.Go(func() {
-		c.post(MultiStats{Counts: []CountStat{stat}})
+		c.post(MultiStats{Counts: []CountStat{{Name: name, Count: count}}})
 	})
 	return nil
 }
 
-func (c *Client) HandleValue(stat ValueStat) error {
+func (c *Client) HandleValue(name string, value float64) error {
 	if c.shuttingDown() {
 		return ErrClientClosed
 	}
 	c.wg.Go(func() {
-		c.post(MultiStats{Values: []ValueStat{stat}})
+		c.post(MultiStats{Values: []ValueStat{{Name: name, Value: value}}})
 	})
 	return nil
 }

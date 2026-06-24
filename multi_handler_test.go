@@ -10,13 +10,13 @@ type dummyHandler struct {
 	stats MultiStats
 }
 
-func (dh *dummyHandler) HandleCount(stat CountStat) error {
-	dh.stats.Counts = append(dh.stats.Counts, stat)
+func (dh *dummyHandler) HandleCount(name string, count int) error {
+	dh.stats.Counts = append(dh.stats.Counts, CountStat{Name: name, Count: count})
 	return nil
 }
 
-func (dh *dummyHandler) HandleValue(stat ValueStat) error {
-	dh.stats.Values = append(dh.stats.Values, stat)
+func (dh *dummyHandler) HandleValue(name string, value float64) error {
+	dh.stats.Values = append(dh.stats.Values, ValueStat{Name: name, Value: value})
 	return nil
 }
 
