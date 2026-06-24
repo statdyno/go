@@ -74,19 +74,9 @@ func TestClient(t *testing.T) {
 			expectedRequests: []MultiStats{{Counts: []CountStat{{Name: "counter", Count: 1}}}},
 		},
 		{
-			name:             "count with tags",
-			log:              func() { CountWithTags("counter", 99, Tags{"foo": "bar"}) },
-			expectedRequests: []MultiStats{{Counts: []CountStat{{Name: "counter", Count: 99, Tags: Tags{"foo": "bar"}}}}},
-		},
-		{
 			name:             "value",
 			log:              func() { Value("value", 123.456) },
 			expectedRequests: []MultiStats{{Values: []ValueStat{{Name: "value", Value: 123.456}}}},
-		},
-		{
-			name:             "value with tags",
-			log:              func() { ValueWithTags("value", 456.789, Tags{"foo": "bar"}) },
-			expectedRequests: []MultiStats{{Values: []ValueStat{{Name: "value", Value: 456.789, Tags: Tags{"foo": "bar"}}}}},
 		},
 		{
 			name: "multiple counts",

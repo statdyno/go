@@ -5,18 +5,14 @@ import (
 	"log"
 )
 
-type Tags map[string]string
-
 type CountStat struct {
 	Name  string `json:"stat"`
 	Count int    `json:"count"`
-	Tags  Tags   `json:"tags,omitempty"`
 }
 
 type ValueStat struct {
 	Name  string  `json:"stat"`
 	Value float64 `json:"value"`
-	Tags  Tags    `json:"tags,omitempty"`
 }
 
 type MultiStats struct {
@@ -33,16 +29,8 @@ type Wrapper struct {
 	Handler
 }
 
-func (w Wrapper) CountWithTags(name string, count int, tags Tags) error {
-	return w.HandleCount(CountStat{Name: name, Count: count, Tags: tags})
-}
-
 func (w Wrapper) Count(name string, count int) error {
 	return w.HandleCount(CountStat{Name: name, Count: count})
-}
-
-func (w Wrapper) ValueWithTags(name string, value float64, tags Tags) error {
-	return w.HandleValue(ValueStat{Name: name, Value: value, Tags: tags})
 }
 
 func (w Wrapper) Value(name string, value float64) error {
@@ -55,16 +43,8 @@ func SetDefault(h Handler) {
 	defaultWrapper = Wrapper{h}
 }
 
-func CountWithTags(name string, count int, tags Tags) error {
-	return defaultWrapper.CountWithTags(name, count, tags)
-}
-
 func Count(name string, count int) error {
 	return defaultWrapper.Count(name, count)
-}
-
-func ValueWithTags(name string, value float64, tags Tags) error {
-	return defaultWrapper.ValueWithTags(name, value, tags)
 }
 
 func Value(name string, value float64) error {
@@ -86,12 +66,12 @@ var _ Handler = NullHandler{}
 type LogHandler struct{}
 
 func (h LogHandler) HandleCount(stat CountStat) error {
-	log.Printf("counter stat: name: %s, count: %d, tags: %v", stat.Name, stat.Count, stat.Tags)
+	log.Printf("counter stat: name: %s, count: %d", stat.Name, stat.Count)
 	return nil
 }
 
 func (h LogHandler) HandleValue(stat ValueStat) error {
-	log.Printf("value stat: name: %s, value: %f, tags: %v", stat.Name, stat.Value, stat.Tags)
+	log.Printf("value stat: name: %s, value: %f", stat.Name, stat.Value)
 	return nil
 }
 
