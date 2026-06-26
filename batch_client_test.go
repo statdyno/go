@@ -109,7 +109,7 @@ func TestBatchClient(t *testing.T) {
 		},
 		{
 			name:             "value with tags",
-			log:              func() { ValueWithTags("value", 456.789, Tags{"foo": "bar"}) },
+			log:              func() { ValueTags("value", 456.789, Tags{"foo": "bar"}) },
 			expectedRequests: []MultiStats{{Values: []ValueStat{{Name: "value", Value: 456.789, Tags: Tags{"foo": "bar"}}}}},
 		},
 		{
@@ -126,8 +126,8 @@ func TestBatchClient(t *testing.T) {
 			name: "counts with tags",
 			log: func() {
 				for range 10 {
-					CountWithTags("counter one", 1, Tags{"foo": "one"})
-					CountWithTags("counter two", 1, Tags{"foo": "two"})
+					CountTags("counter one", 1, Tags{"foo": "one"})
+					CountTags("counter two", 1, Tags{"foo": "two"})
 				}
 			},
 			expectedRequests: []MultiStats{{Counts: []CountStat{
@@ -139,10 +139,10 @@ func TestBatchClient(t *testing.T) {
 			name: "counts and values with tags",
 			log: func() {
 				for x := range 10 {
-					CountWithTags("counter one", 1, Tags{"foo": "one"})
-					CountWithTags("counter two", 1, Tags{"foo": "two"})
-					ValueWithTags("value one", float64(x), Tags{"foo": "one"})
-					ValueWithTags("value two", float64(x*2), Tags{"foo": "two"})
+					CountTags("counter one", 1, Tags{"foo": "one"})
+					CountTags("counter two", 1, Tags{"foo": "two"})
+					ValueTags("value one", float64(x), Tags{"foo": "one"})
+					ValueTags("value two", float64(x*2), Tags{"foo": "two"})
 				}
 			},
 			expectedRequests: []MultiStats{{

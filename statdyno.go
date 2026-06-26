@@ -33,7 +33,7 @@ type Wrapper struct {
 	Handler
 }
 
-func (w Wrapper) CountWithTags(name string, count int, tags Tags) error {
+func (w Wrapper) CountTags(name string, count int, tags Tags) error {
 	return w.HandleCount(CountStat{Name: name, Count: count, Tags: tags})
 }
 
@@ -41,7 +41,7 @@ func (w Wrapper) Count(name string, count int) error {
 	return w.HandleCount(CountStat{Name: name, Count: count})
 }
 
-func (w Wrapper) ValueWithTags(name string, value float64, tags Tags) error {
+func (w Wrapper) ValueTags(name string, value float64, tags Tags) error {
 	return w.HandleValue(ValueStat{Name: name, Value: value, Tags: tags})
 }
 
@@ -55,16 +55,16 @@ func SetDefault(h Handler) {
 	defaultWrapper = Wrapper{h}
 }
 
-func CountWithTags(name string, count int, tags Tags) error {
-	return defaultWrapper.CountWithTags(name, count, tags)
+func CountTags(name string, count int, tags Tags) error {
+	return defaultWrapper.CountTags(name, count, tags)
 }
 
 func Count(name string, count int) error {
 	return defaultWrapper.Count(name, count)
 }
 
-func ValueWithTags(name string, value float64, tags Tags) error {
-	return defaultWrapper.ValueWithTags(name, value, tags)
+func ValueTags(name string, value float64, tags Tags) error {
+	return defaultWrapper.ValueTags(name, value, tags)
 }
 
 func Value(name string, value float64) error {

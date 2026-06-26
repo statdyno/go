@@ -36,7 +36,7 @@ func TestMultiHandler(t *testing.T) {
 	}{
 		{
 			name: "count with tags",
-			log:  func() { CountWithTags("counter", 1, Tags{"foo": "bar"}) },
+			log:  func() { CountTags("counter", 1, Tags{"foo": "bar"}) },
 			expectedStats: MultiStats{
 				Counts: []CountStat{
 					{Name: "counter", Count: 1, Tags: Tags{"foo": "bar"}},
