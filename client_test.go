@@ -79,6 +79,16 @@ func TestClient(t *testing.T) {
 			expectedRequests: []MultiStats{{Counts: []CountStat{{Name: "counter", Count: 99, Tags: Tags{"foo": "bar"}}}}},
 		},
 		{
+			name:             "count with var tags",
+			log:              func() { Count("counter", 99, "foo", "bar") },
+			expectedRequests: []MultiStats{{Counts: []CountStat{{Name: "counter", Count: 99, Tags: Tags{"foo": "bar"}}}}},
+		},
+		{
+			name:             "count with mismatched var tags",
+			log:              func() { Count("counter", 99, "foo", "bar", "baz") },
+			expectedRequests: []MultiStats{{Counts: []CountStat{{Name: "counter", Count: 99, Tags: Tags{"foo": "bar", "baz": ""}}}}},
+		},
+		{
 			name:             "value",
 			log:              func() { Value("value", 123.456) },
 			expectedRequests: []MultiStats{{Values: []ValueStat{{Name: "value", Value: 123.456}}}},
@@ -86,6 +96,11 @@ func TestClient(t *testing.T) {
 		{
 			name:             "value with tags",
 			log:              func() { ValueTags("value", 456.789, Tags{"foo": "bar"}) },
+			expectedRequests: []MultiStats{{Values: []ValueStat{{Name: "value", Value: 456.789, Tags: Tags{"foo": "bar"}}}}},
+		},
+		{
+			name:             "value with var tags",
+			log:              func() { Value("value", 456.789, "foo", "bar") },
 			expectedRequests: []MultiStats{{Values: []ValueStat{{Name: "value", Value: 456.789, Tags: Tags{"foo": "bar"}}}}},
 		},
 		{

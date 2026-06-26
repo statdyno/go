@@ -33,20 +33,40 @@ type Wrapper struct {
 	Handler
 }
 
+func varTags(tags ...string) Tags {
+	if len(tags) == 0 {
+		return nil
+	}
+	mtags := make(Tags)
+	for len(tags) > 0 {
+		key := tags[0]
+		val := ""
+		if len(tags) > 1 {
+			val = tags[1]
+		}
+		mtags[key] = val
+		if len(tags) == 1 {
+			break
+		}
+		tags = tags[2:]
+	}
+	return mtags
+}
+
 func (w Wrapper) CountTags(name string, count int, tags Tags) error {
 	return w.HandleCount(CountStat{Name: name, Count: count, Tags: tags})
 }
 
-func (w Wrapper) Count(name string, count int) error {
-	return w.HandleCount(CountStat{Name: name, Count: count})
+func (w Wrapper) Count(name string, count int, tags ...string) error {
+	return w.HandleCount(CountStat{Name: name, Count: count, Tags: varTags(tags...)})
 }
 
 func (w Wrapper) ValueTags(name string, value float64, tags Tags) error {
 	return w.HandleValue(ValueStat{Name: name, Value: value, Tags: tags})
 }
 
-func (w Wrapper) Value(name string, value float64) error {
-	return w.HandleValue(ValueStat{Name: name, Value: value})
+func (w Wrapper) Value(name string, value float64, tags ...string) error {
+	return w.HandleValue(ValueStat{Name: name, Value: value, Tags: varTags(tags...)})
 }
 
 var defaultWrapper Wrapper
@@ -59,16 +79,16 @@ func CountTags(name string, count int, tags Tags) error {
 	return defaultWrapper.CountTags(name, count, tags)
 }
 
-func Count(name string, count int) error {
-	return defaultWrapper.Count(name, count)
+func Count(name string, count int, tags ...string) error {
+	return defaultWrapper.Count(name, count, tags...)
 }
 
 func ValueTags(name string, value float64, tags Tags) error {
 	return defaultWrapper.ValueTags(name, value, tags)
 }
 
-func Value(name string, value float64) error {
-	return defaultWrapper.Value(name, value)
+func Value(name string, value float64, tags ...string) error {
+	return defaultWrapper.Value(name, value, tags...)
 }
 
 type NullHandler struct{}
