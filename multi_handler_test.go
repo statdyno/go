@@ -10,13 +10,13 @@ type dummyHandler struct {
 	stats MultiStats
 }
 
-func (dh *dummyHandler) HandleCount(name string, count int) error {
-	dh.stats.Counts = append(dh.stats.Counts, CountStat{Name: name, Count: count})
+func (dh *dummyHandler) HandleCount(stat CountStat) error {
+	dh.stats.Counts = append(dh.stats.Counts, stat)
 	return nil
 }
 
-func (dh *dummyHandler) HandleValue(name string, value float64) error {
-	dh.stats.Values = append(dh.stats.Values, ValueStat{Name: name, Value: value})
+func (dh *dummyHandler) HandleValue(stat ValueStat) error {
+	dh.stats.Values = append(dh.stats.Values, stat)
 	return nil
 }
 
@@ -34,6 +34,16 @@ func TestMultiHandler(t *testing.T) {
 		log           func()
 		expectedStats MultiStats
 	}{
+		{
+			name: "count with tags",
+			log:  func() { CountWithTags("counter", 1, Tags{"foo": "bar"}) },
+			expectedStats: MultiStats{
+				Counts: []CountStat{
+					{Name: "counter", Count: 1, Tags: Tags{"foo": "bar"}},
+					{Name: "counter", Count: 1, Tags: Tags{"foo": "bar"}},
+				},
+			},
+		},
 		{
 			name: "count and value",
 			log:  func() { Count("counter", 1); Value("value", 123) },

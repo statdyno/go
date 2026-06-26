@@ -2,6 +2,8 @@ package statdyno
 
 import (
 	"context"
+	"sort"
+	"strings"
 	"sync"
 	"time"
 )
@@ -16,6 +18,31 @@ func (ra *runningAverage) Add(value float64) {
 	ra.Value += (value - ra.Value) / float64(ra.N)
 }
 
+func encodeTags(tags Tags) string {
+	if len(tags) == 0 {
+		return ""
+	}
+	keys := make([]string, 0, len(tags))
+	for key := range tags {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	var buf strings.Builder
+	for i, key := range keys {
+		buf.WriteString(key)
+		buf.WriteRune('=')
+		buf.WriteString(tags[key])
+		if i < len(tags)-1 {
+			buf.WriteRune(',')
+		}
+	}
+	return buf.String()
+}
+
+func cacheKey(name string, tags Tags) string {
+	return name + ":" + encodeTags(tags)
+}
+
 type BatchClient struct {
 	*Client
 
@@ -25,30 +52,32 @@ type BatchClient struct {
 	cacheLck   sync.Mutex
 }
 
-func (c *BatchClient) HandleCount(name string, count int) error {
+func (c *BatchClient) HandleCount(stat CountStat) error {
 	if c.shuttingDown() {
 		return ErrClientClosed
 	}
 	c.cacheLck.Lock()
 	defer c.cacheLck.Unlock()
-	if v, ok := c.countCache[name]; ok {
-		v.Count += count
+	key := cacheKey(stat.Name, stat.Tags)
+	if count, ok := c.countCache[key]; ok {
+		count.Count += stat.Count
 	} else {
-		c.countCache[name] = &CountStat{Name: name, Count: count}
+		c.countCache[key] = &stat
 	}
 	return nil
 }
 
-func (c *BatchClient) HandleValue(name string, value float64) error {
+func (c *BatchClient) HandleValue(stat ValueStat) error {
 	if c.shuttingDown() {
 		return ErrClientClosed
 	}
 	c.cacheLck.Lock()
 	defer c.cacheLck.Unlock()
-	if v, ok := c.valueCache[name]; ok {
-		v.Add(value)
+	key := cacheKey(stat.Name, stat.Tags)
+	if value, ok := c.valueCache[key]; ok {
+		value.Add(stat.Value)
 	} else {
-		c.valueCache[name] = &runningAverage{ValueStat{name, value}, 1}
+		c.valueCache[key] = &runningAverage{stat, 1}
 	}
 	return nil
 }

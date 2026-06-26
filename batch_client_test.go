@@ -11,6 +11,32 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestTagsEncoding(t *testing.T) {
+	for _, test := range []struct {
+		name             string
+		tags             Tags
+		expectedEncoding string
+	}{
+		{
+			name:             "one tag",
+			tags:             Tags{"foo": "bar"},
+			expectedEncoding: "foo=bar",
+		},
+		{
+			name:             "multiple tags",
+			tags:             Tags{"c": "c", "b": "b", "a": "a"},
+			expectedEncoding: "a=a,b=b,c=c",
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			encoding := encodeTags(test.tags)
+			if encoding != test.expectedEncoding {
+				t.Errorf("got encoding '%s', expected '%s'", encoding, test.expectedEncoding)
+			}
+		})
+	}
+}
+
 func TestRunningAverage(t *testing.T) {
 	// https://pkg.go.dev/github.com/google/go-cmp/cmp#example-Option-ApproximateFloats
 	opt := cmp.Comparer(func(x, y float64) bool {
@@ -82,6 +108,11 @@ func TestBatchClient(t *testing.T) {
 			expectedRequests: []MultiStats{{Values: []ValueStat{{Name: "value", Value: 4.5}}}},
 		},
 		{
+			name:             "value with tags",
+			log:              func() { ValueWithTags("value", 456.789, Tags{"foo": "bar"}) },
+			expectedRequests: []MultiStats{{Values: []ValueStat{{Name: "value", Value: 456.789, Tags: Tags{"foo": "bar"}}}}},
+		},
+		{
 			name: "count and value",
 			log:  func() { Count("count", 123); Value("value", 456.789) },
 			expectedRequests: []MultiStats{
@@ -90,6 +121,40 @@ func TestBatchClient(t *testing.T) {
 					Values: []ValueStat{{Name: "value", Value: 456.789}},
 				},
 			},
+		},
+		{
+			name: "counts with tags",
+			log: func() {
+				for range 10 {
+					CountWithTags("counter one", 1, Tags{"foo": "one"})
+					CountWithTags("counter two", 1, Tags{"foo": "two"})
+				}
+			},
+			expectedRequests: []MultiStats{{Counts: []CountStat{
+				{Name: "counter one", Count: 10, Tags: Tags{"foo": "one"}},
+				{Name: "counter two", Count: 10, Tags: Tags{"foo": "two"}},
+			}}},
+		},
+		{
+			name: "counts and values with tags",
+			log: func() {
+				for x := range 10 {
+					CountWithTags("counter one", 1, Tags{"foo": "one"})
+					CountWithTags("counter two", 1, Tags{"foo": "two"})
+					ValueWithTags("value one", float64(x), Tags{"foo": "one"})
+					ValueWithTags("value two", float64(x*2), Tags{"foo": "two"})
+				}
+			},
+			expectedRequests: []MultiStats{{
+				Counts: []CountStat{
+					{Name: "counter one", Count: 10, Tags: Tags{"foo": "one"}},
+					{Name: "counter two", Count: 10, Tags: Tags{"foo": "two"}},
+				},
+				Values: []ValueStat{
+					{Name: "value one", Value: 4.5, Tags: Tags{"foo": "one"}},
+					{Name: "value two", Value: 9, Tags: Tags{"foo": "two"}},
+				},
+			}},
 		},
 	} {
 		th.requests = nil
